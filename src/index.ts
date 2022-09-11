@@ -144,7 +144,8 @@ client.on("messageCreate", async (message) => {
   if (error) {
     const errorMessage = [
       ...Object.entries(error.invalid).map(([k, v]) => `Invalid ${k}: ${v}`),
-      ...error.missing.map((k) => `Missing ${k}.`),
+      ...error.missing.map((a) => `Missing argument ${a}.`),
+      ...error.unexpected.map((a) => `Unexpected argument '${a}'.`),
     ].join("\n");
     await message.reply(errorMessage);
     return;
