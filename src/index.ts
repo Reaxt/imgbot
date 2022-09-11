@@ -161,9 +161,10 @@ client.on("messageCreate", async (message) => {
   await message.channel.sendTyping();
 
   try {
-    const url = args.input ?? message.attachments.first()!.url;
-    const response = await axios.get(url, {
+    args.input ??= message.attachments.first()!.url;
+    const response = await axios.get(args.input, {
       responseType: "arraybuffer",
+      maxContentLength: Number(process.env.MAX_CONTENT_LENGTH) || 10_000_000,
     });
     const image = Buffer.from(response.data);
 
