@@ -133,20 +133,23 @@ client.on("messageCreate", async (message) => {
   });
 
   if (["help", "--help", "?"].includes(command[0])) {
-    await message.reply(
+    const helpMessage =
       "```\n" +
-        `imgbot ${help.params.join(" ")}\n  ${help.options.join("\n  ")}` +
-        "\n```"
-    );
+      `imgbot ${help.params.join(" ")}\n  ${help.options.join("\n  ")}` +
+      "\n```";
+    await message.reply(helpMessage);
     return;
   }
 
   if (error) {
-    const errorMessage = [
-      ...Object.entries(error.invalid).map(([k, v]) => `Invalid ${k}: ${v}`),
-      ...error.missing.map((a) => `Missing argument ${a}.`),
-      ...error.unexpected.map((a) => `Unexpected argument '${a}'.`),
-    ].join("\n");
+    const errorMessage =
+      "```\n" +
+      [
+        ...Object.entries(error.invalid).map(([k, v]) => `Invalid ${k}: ${v}`),
+        ...error.missing.map((a) => `Missing argument ${a}.`),
+        ...error.unexpected.map((a) => `Unexpected argument '${a}'.`),
+      ].join("\n") +
+      "\n```";
     await message.reply(errorMessage);
     return;
   }
