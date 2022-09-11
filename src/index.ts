@@ -43,7 +43,7 @@ const format: mc.Parser<Format> = (input) => {
   return f;
 };
 
-const crop: mc.Parser<{
+const box: mc.Parser<{
   left: number;
   top: number;
   right: number;
@@ -54,26 +54,7 @@ const crop: mc.Parser<{
     return { left, top, right, bottom };
   } catch {
     throw new mc.ParseError(
-      `'${input}' is not a valid crop specification. Format is 'left;top;right;bottom'.`
-    );
-  }
-};
-
-const extend: mc.Parser<{
-  left: number;
-  top: number;
-  right: number;
-  bottom: number;
-  colour: RGBA;
-}> = (input) => {
-  try {
-    const [l, t, r, b, c] = input.split(";");
-    const [left, top, right, bottom] = [l, t, r, b].map(positiveInteger);
-    const cc = colour(c);
-    return { left, top, right, bottom, colour: cc };
-  } catch {
-    throw new mc.ParseError(
-      `'${input}' is not a valid extend specification. Format is 'left;top;right;bottom;colour'.`
+      `'${input}' is not a valid box specification. Format is 'left;top;right;bottom'.`
     );
   }
 };
@@ -99,7 +80,7 @@ client.on("messageCreate", async (message) => {
     input: { optional: true },
     removeAlpha: { long: "remove-alpha", type: mc.types.bool },
     ensureAlpha: { long: "ensure-alpha", type: mc.types.bool },
-    crop: { short: "c", long: "crop", type: crop, optional: true },
+    crop: { short: "c", long: "crop", type: box, optional: true },
     flip: { short: "f", long: "flip", type: axis, optional: true },
     sharpen: { long: "sharpen", type: mc.types.bool },
     threshold: { long: "threshold", type: mc.types.number, optional: true },
@@ -127,7 +108,13 @@ client.on("messageCreate", async (message) => {
     extend: {
       short: "e",
       long: ["extend", "pad"],
-      type: extend,
+      type: box,
+      optional: true,
+    },
+    background: {
+      short: "b",
+      long: "background",
+      type: colour,
       optional: true,
     },
   });
@@ -210,16 +197,18 @@ client.on("messageCreate", async (message) => {
       pipeline = pipeline.resize(args.width, args.height, { fit: "fill" });
     }
     if (args.rotation != undefined) {
-      pipeline = pipeline.rotate(args.rotation);
+      pipeline = pipeline.rotate(args.rotation, {
+        background: args.background,
+      });
     }
     if (args.extend) {
-      const { left, top, right, bottom, colour } = args.extend;
+      const { left, top, right, bottom } = args.extend;
       pipeline = pipeline.extend({
         left,
         top,
         right,
         bottom,
-        background: colour,
+        background: args.background,
       });
     }
 
