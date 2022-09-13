@@ -37,7 +37,7 @@ const axis: mc.Parser<"x" | "y"> = (input) => {
   return a as "x" | "y";
 };
 
-const formats = ["png", "jpeg", "webp", "gif"] as const;
+const formats = ["png", "jpg", "jpeg", "webp", "gif"] as const;
 type Format = typeof formats[number];
 const format: mc.Parser<Format> = (input) => {
   const f = input.toLowerCase() as Format;
@@ -298,6 +298,7 @@ client.on("messageCreate", async (message) => {
         pipeline = pipeline.png();
         break;
       }
+      case "jpg":
       case "jpeg": {
         filename += ".jpg";
         pipeline = pipeline.jpeg({ quality: args.quality });
