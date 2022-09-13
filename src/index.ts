@@ -13,6 +13,14 @@ const positiveInteger: mc.Parser<number> = (input) => {
   return num;
 };
 
+const percentage: mc.Parser<number> = (input) => {
+  const num = positiveInteger(input);
+  if (num > 100) {
+    throw new mc.ParseError(`'${input}' is not a percentage.`);
+  }
+  return num;
+};
+
 const colour: mc.Parser<RGBA> = (input) => {
   try {
     return new Color(input).rgb().object();
@@ -112,7 +120,7 @@ client.on("messageCreate", async (message) => {
     quality: {
       short: "Q",
       long: "quality",
-      type: positiveInteger,
+      type: percentage,
       optional: true,
       name: "percentage",
     },
