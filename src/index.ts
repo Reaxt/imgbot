@@ -202,7 +202,7 @@ client.on("messageCreate", async (message) => {
     const helpMessage =
       "```\n" +
       `imgbot ${help.params.join(" ")}\n  ${help.options.join("\n  ")}` +
-      "\n```\n```\nUse --option 'has spaces' for spaces\n Use --option=-2 for negative numbers\n```";
+      "\n```\n```\nUse --option 'has spaces' for spaces\nUse --option=-2 for negative numbers\n```";
     await message.reply(helpMessage);
     return;
   }
