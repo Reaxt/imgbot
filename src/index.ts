@@ -147,7 +147,11 @@ client.on("messageCreate", async (message) => {
       optional: true,
       name: "luminosity",
     },
-    negative: { long: ["negative", "negate"], type: mc.types.bool },
+    negative: {
+      short: "n",
+      long: ["negative", "negate", "invert"],
+      type: mc.types.bool,
+    },
     blur: { long: "blur", type: mc.types.bool },
     tint: {
       short: "t",
