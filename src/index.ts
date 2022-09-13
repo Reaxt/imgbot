@@ -114,7 +114,7 @@ client.on("messageCreate", async (message) => {
   if (!message.content.startsWith("imgbot")) return;
 
   const command = message.content.split(" ").slice(1);
-  const [args, error, help] = mc.parse(command, {
+  const [args, error, help] = mc.parse(command.join(" "), {
     input: { optional: true },
     format: { short: "F", long: "format", type: format, default: "png" },
     quality: {
