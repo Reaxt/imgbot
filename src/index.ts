@@ -107,8 +107,15 @@ client.on("messageCreate", async (message) => {
 
   const command = message.content.split(" ").slice(1);
   const [args, error, help] = mc.parse(command, {
-    format: { short: "F", long: "format", type: format, default: "png" },
     input: { optional: true },
+    format: { short: "F", long: "format", type: format, default: "png" },
+    quality: {
+      short: "Q",
+      long: "quality",
+      type: positiveInteger,
+      optional: true,
+      name: "percentage",
+    },
     removeAlpha: { long: "remove-alpha", type: mc.types.bool },
     ensureAlpha: { long: "ensure-alpha", type: mc.types.bool },
     crop: {
@@ -247,7 +254,7 @@ client.on("messageCreate", async (message) => {
       pipeline = pipeline.threshold(args.threshold);
     }
     if (args.negative) {
-      pipeline = pipeline.negate();
+      pipeline = pipeline.negate({ alpha: false });
     }
     if (args.blur) {
       pipeline = pipeline.blur();
@@ -285,12 +292,12 @@ client.on("messageCreate", async (message) => {
       }
       case "jpeg": {
         filename += ".jpg";
-        pipeline = pipeline.jpeg();
+        pipeline = pipeline.jpeg({ quality: args.quality });
         break;
       }
       case "webp": {
         filename += ".webp";
-        pipeline = pipeline.webp();
+        pipeline = pipeline.webp({ quality: args.quality });
         break;
       }
       case "gif": {
