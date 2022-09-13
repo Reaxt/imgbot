@@ -162,7 +162,7 @@ client.on("messageCreate", async (message) => {
     },
     greyscale: {
       short: "g",
-      long: ["greyscale", "grayscale"],
+      long: "greyscale",
       type: mc.types.bool,
     },
     width: {
