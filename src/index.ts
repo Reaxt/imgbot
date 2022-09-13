@@ -44,17 +44,48 @@ const format: mc.Parser<Format> = (input) => {
 };
 
 const box: mc.Parser<{
-  left: number;
   top: number;
   right: number;
   bottom: number;
+  left: number;
 }> = (input) => {
   try {
-    const [left, top, right, bottom] = input.split(";").map(positiveInteger);
-    return { left, top, right, bottom };
+    const sides = input
+      .split(" ")
+      .filter((s) => s.length > 0)
+      .map(positiveInteger);
+    switch (sides.length) {
+      case 1: {
+        return {
+          top: sides[0],
+          right: sides[0],
+          bottom: sides[0],
+          left: sides[0],
+        };
+      }
+      case 2: {
+        return {
+          top: sides[0],
+          right: sides[1],
+          bottom: sides[0],
+          left: sides[1],
+        };
+      }
+      case 4: {
+        return {
+          top: sides[0],
+          right: sides[1],
+          bottom: sides[2],
+          left: sides[3],
+        };
+      }
+      default: {
+        throw new Error();
+      }
+    }
   } catch {
     throw new mc.ParseError(
-      `'${input}' is not a valid box specification. Format is 'left;top;right;bottom'.`
+      `'${input}' is not a valid box specification. Format is either 'top right left bottom', 'y x', or 'all'.`
     );
   }
 };
@@ -76,46 +107,79 @@ client.on("messageCreate", async (message) => {
 
   const command = message.content.split(" ").slice(1);
   const [args, error, help] = mc.parse(command, {
-    format: { type: format },
+    format: { short: "F", long: "format", type: format, default: "png" },
     input: { optional: true },
     removeAlpha: { long: "remove-alpha", type: mc.types.bool },
     ensureAlpha: { long: "ensure-alpha", type: mc.types.bool },
-    crop: { short: "c", long: "crop", type: box, optional: true },
-    flip: { short: "f", long: "flip", type: axis, optional: true },
+    crop: {
+      short: "c",
+      long: "crop",
+      type: box,
+      optional: true,
+      name: "pixels",
+    },
+    flip: {
+      short: "f",
+      long: "flip",
+      type: axis,
+      optional: true,
+      name: "axis",
+    },
     sharpen: { long: "sharpen", type: mc.types.bool },
-    threshold: { long: "threshold", type: mc.types.number, optional: true },
+    threshold: {
+      long: "threshold",
+      type: mc.types.number,
+      optional: true,
+      name: "luminosity",
+    },
     negative: { long: ["negative", "negate"], type: mc.types.bool },
     blur: { long: "blur", type: mc.types.bool },
-    tint: { short: "t", long: "tint", type: colour, optional: true },
+    tint: {
+      short: "t",
+      long: "tint",
+      type: colour,
+      optional: true,
+      name: "colour",
+    },
     greyscale: {
       short: "g",
       long: ["greyscale", "grayscale"],
       type: mc.types.bool,
     },
-    width: { short: "w", long: "width", type: positiveInteger, optional: true },
+    width: {
+      short: "w",
+      long: "width",
+      type: positiveInteger,
+      optional: true,
+      name: "pixels",
+    },
     height: {
       short: "h",
       long: "height",
       type: positiveInteger,
       optional: true,
+      name: "pixels",
     },
     rotation: {
       short: "r",
       long: ["rotation", "rotate"],
       type: mc.types.number,
       optional: true,
+      name: "degrees",
     },
     extend: {
       short: "e",
-      long: ["extend", "pad"],
+      long: ["extend", "pad", "padding", "margin"],
       type: box,
       optional: true,
+      name: "pixels",
     },
     background: {
       short: "b",
       long: "background",
       type: colour,
       optional: true,
+      name: "colour",
     },
   });
 
@@ -123,7 +187,7 @@ client.on("messageCreate", async (message) => {
     const helpMessage =
       "```\n" +
       `imgbot ${help.params.join(" ")}\n  ${help.options.join("\n  ")}` +
-      "\n```";
+      "\n```\n```\nUse --option 'has spaces' for spaces\n Use --option=-2 for negative numbers\n```";
     await message.reply(helpMessage);
     return;
   }
